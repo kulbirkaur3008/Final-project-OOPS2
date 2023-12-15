@@ -1,0 +1,188 @@
+﻿@page "/instructor"
+@using MauiApp1.Data
+
+<style>
+    /* CSS styling for the page */
+
+    body {
+        background-color: lightblue;
+        font-family: 'Times New Roman', Times, serif;
+
+    h5 {
+        color: #333333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .flex-column {
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background-color: purple;
+        color: #ffffff;
+        font-family: 'Times New Roman', Times, serif, sans-serif;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .btn-secondary, .btn-danger, .btn-info, .btn-success {
+        margin-right: 5px;
+    }
+
+    p {
+        color: red;
+        display: none;
+    }
+</style>
+<h5>Manage Instructors</h5>
+
+<div class="form-group">
+    <!-- Form for adding or updating an instructor -->
+
+    <div class="flex">
+        <!-- Input fields for intstructor information -->
+
+        <div class="flex-column">
+            <label for="Id">ID: </label>
+            <input type="number" class="form-control" id="Id" @bind="newInstructor.Id" placeholder="Enter ID" />
+            <!--  exception we selected the input to be numerical rather than text.  -->
+        </div>
+        <div class="flex-column">
+            <label for="Name">Name: </label>
+            <input type="text" class="form-control" id="Name" @bind="newInstructor.Name" placeholder="Enter name" />
+        </div>
+        <div class="flex-column">
+            <label for="Specialization">Specialization: </label>
+            <select class="form-control" id="Specialization" @bind="newInstructor.Specialization">
+                <option>Certified Personal Trainer</option>
+                <option>Fitness Nutrition Specialist</option>
+                <option>Strength and Conditioning Coach</option>
+                <option>Group Exercise Instructor</option>
+                <option>Yoga Instructor</option>
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-primary" @onclick="AddOrUpdateInstructor">Save Instructor</button>
+</div>
+
+<br />
+<h5>Instructors</h5>
+<table class="table">
+    <!-- Table to display the list of instructors -->
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Specialization</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var instructor in instructors)
+        {
+            <tr>
+                <td>@instructor.Id</td>
+                <td>@instructor.Name</td>
+                <td>@instructor.Specialization</td>
+                <td>
+
+                    <button class="btn btn-secondary btn-sm" @onclick="() => EditInstructor(instructor)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteInstructor(instructor)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-info" @onclick="ShowAllInstructors">Show all instructors</button>
+
+<button class="btn btn-success" @onclick="UpdateDatabase">Update Database</button>
+<p style="color: red; display: @successMessageDisplay">@successMessage</p>
+
+@code {
+    private InstructorModel newInstructor = new InstructorModel();
+    private List<InstructorModel> instructors = new List<InstructorModel>();
+    private InstructorModel editingInstructor = null;
+
+    private void AddOrUpdateInstructor()
+    {
+        if (editingInstructor == null)
+        {
+
+            instructors.Add(new InstructorModel
+                {
+                    Id = newInstructor.Id,
+                    Name = newInstructor.Name,
+                    Specialization = newInstructor.Specialization
+                });
+        }
+        else
+        {
+            editingInstructor.Id = newInstructor.Id;
+            editingInstructor.Name = newInstructor.Name;
+            editingInstructor.Specialization = newInstructor.Specialization;
+
+            editingInstructor = null;
+        }
+
+        newInstructor = new InstructorModel();
+    }
+
+    private void DeleteInstructor(InstructorModel instructor)
+    {
+        instructors.Remove(instructor);
+    }
+
+    private void EditInstructor(InstructorModel instructor)
+    {
+        editingInstructor = instructor;
+
+        newInstructor.Id = instructor.Id;
+        newInstructor.Name = instructor.Name;
+        newInstructor.Specialization = instructor.Specialization;
+    }
+
+    private void ShowAllInstructors()
+    {
+
+    }
+
+    public class InstructorModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Specialization { get; set; }
+    }
+    private string successMessage = "Database Updated!";
+    private string successMessageDisplay = "none";
+
+    private void UpdateDatabase()
+    {
+
+        successMessageDisplay = "block";
+
+        Task.Delay(3000).ContinueWith(_ => successMessageDisplay = "none");
+    }
+}

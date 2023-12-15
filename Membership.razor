@@ -1,0 +1,241 @@
+﻿@page "/managememberships"
+@using MauiApp1.Data
+
+<!-- This code contains the membership info of the client. -->
+
+<style>
+    /* CSS styling for the page */
+
+    body {
+        background-color: lightblue;
+        font-family: 'Times New Roman', Times, serif;
+        h5
+
+    {
+        color: #333333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .flex-column {
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background-color: purple;
+        color: #ffffff;
+        font-family: 'Times New Roman', Times, serif, sans-serif;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .btn-secondary, .btn-danger, .btn-info, .btn-success {
+        margin-right: 5px;
+    }
+
+    p {
+        color: red;
+        display: none;
+    }
+</style>
+
+<h5>Manage Memberships</h5>
+
+<div class="form-group">
+    <!-- This section contains the input info. -->
+
+    <div class="flex">
+        <div class="flex-column">
+            <label for="ClientName">Client Name: </label>
+            <input type="text" class="form-control" id="ClientName" @bind="newMembership.ClientName" placeholder="Enter Client Name" />
+        </div>
+        <div class="flex-column">
+            <label for="MembershipType">Type: </label>
+            <select class="form-control" id="MembershipType" @bind="newMembership.MembershipType">
+                <option>Bronze</option>
+                <option>Silver</option>
+                <option>Gold</option>
+            </select>
+        </div>
+        <div class="flex-column">
+            <label for="Duration">Duration: </label>
+            <input type="text" class="form-control" id="Duration" @bind="newMembership.Duration" placeholder="Duration" readonly />
+        </div>
+    </div>
+    <button class="btn btn-warning btn-block" @onclick="AddOrUpdateMembership">Buy Membership</button>
+</div>
+
+<br />
+<h5>Memberships</h5>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Membership Type</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Bronze</td>
+            <td>$50.00</td>
+        </tr>
+        <tr>
+            <td>Silver</td>
+            <td>$100.00</td>
+        </tr>
+        <tr>
+            <td>Gold</td>
+            <td>$250.00</td>
+        </tr>
+    </tbody>
+</table>
+<br />
+<h5>Memberships</h5>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Client Name</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var membership in memberships)
+        {
+            <tr>
+                <td>@membership.ClientName</td>
+                <td>@membership.MembershipType</td>
+                <td>@membership.Price</td>
+                <td>
+                    <button class="btn btn-secondary btn-sm" @onclick="() => EditMembership(membership)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteMembership(membership)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private MembershipModel newMembership = new MembershipModel();
+    private List<MembershipModel> memberships = new List<MembershipModel>();
+    private MembershipModel editingMembership = null;
+
+    private void AddOrUpdateMembership()
+    {
+        if (editingMembership == null)
+        {
+
+            memberships.Add(new MembershipModel
+                {
+                    ClientName = newMembership.ClientName,
+                    MembershipType = newMembership.MembershipType,
+                    Price = GetMembershipPrice(newMembership.MembershipType)
+                });
+        }
+        else
+        {
+            editingMembership.ClientName = newMembership.ClientName;
+            editingMembership.MembershipType = newMembership.MembershipType;
+            editingMembership.Price = GetMembershipPrice(newMembership.MembershipType); 
+
+            editingMembership = null;
+        }
+
+        newMembership = new MembershipModel();
+    }
+
+    private void DeleteMembership(MembershipModel membership)
+    {
+        memberships.Remove(membership);
+    }
+
+    private void EditMembership(MembershipModel membership)
+    {
+        editingMembership = membership;
+
+        newMembership.ClientName = membership.ClientName;
+        newMembership.MembershipType = membership.MembershipType;
+        newMembership.Price = membership.Price;
+    }
+
+    private decimal GetMembershipPrice(string membershipType)
+    {
+        switch (membershipType)
+        {
+            case "Bronze":
+                return 50m;
+            case "Silver":
+                return 100m;
+            case "Gold":
+                return 250m;
+            default:
+                return 0m;
+        }
+    }
+
+    private void UpdatePrice()
+    {
+        switch (newMembership.MembershipType)
+        {
+            case "Bronze":
+                newMembership.Price = 10.0m;
+                break;
+            case "Silver":
+                newMembership.Price = 20.0m;
+                break;
+            case "Gold":
+                newMembership.Price = 50.0m;
+                break;
+            default:
+                newMembership.Price = 0.0m;
+                break;
+        }
+    }
+    private void UpdateDuration()
+    {
+        switch (newMembership.MembershipType)
+        {
+            case "Bronze":
+                newMembership.Duration = "1 year";
+                break;
+            case "Silver":
+                newMembership.Duration = "1 year";
+                break;
+            case "Gold":
+                newMembership.Duration = "1 year";
+                break;
+            default:
+                newMembership.Duration = "";
+                break;
+        }
+    }
+
+    public class MembershipModel
+    {
+        public string ClientName { get; set; }
+        public string MembershipType { get; set; }
+        public decimal Price { get; set; }
+        public string Duration { get; set; }
+    }
+}
